@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include "my_rand.h"
-#include "timer.h"
+#include <time.h>
 
 const int MAX_KEY = 100000000;
 
@@ -165,6 +164,7 @@ int  Is_empty(void) {
 
 void* Thread_work(void* rank) 
 {
+   srand(time(NULL));
    long my_rank = (long) rank;
    int i, val;
    double which_op;
@@ -175,7 +175,7 @@ void* Thread_work(void* rank)
    for (i = 0; i < ops_per_thread; i++) 
    {
       which_op = my_drand(&seed);
-      val = my_rand(&seed) % MAX_KEY;
+      val = rand() % MAX_KEY;
       if (which_op < search_percent) 
       {
          pthread_rwlock_rdlock(&rwlock);
@@ -195,6 +195,53 @@ void* Thread_work(void* rank)
          pthread_rwlock_wrlock(&rwlock);
          Delete(val);
          pthread_rwlock_unlock(&rwlock);
+         my_delete_count++;
+      }
+   } 
+
+   pthread_mutex_lock(&count_mutex);
+   member_count += my_member_count;
+   insert_count += my_insert_count;
+   delete_count += my_delete_count;
+   pthread_mutex_unlock(&count_mutex);
+
+   return NULL;
+}
+
+pthread_mutex_t rwmutex;
+void* Thread_work2(void* rank) 
+{
+   srand(time(NULL));
+   long my_rank = (long) rank;
+   int i, val;
+   double which_op;
+   unsigned seed = my_rank + 1;
+   int my_member_count = 0, my_insert_count=0, my_delete_count=0;
+   int ops_per_thread = total_ops/thread_count;
+
+   for (i = 0; i < ops_per_thread; i++) 
+   {
+      which_op = my_drand(&seed);
+      val = rand() % MAX_KEY;
+      if (which_op < search_percent) 
+      {
+         pthread_mutex_lock(&rwmutex);
+         Member(val);
+         pthread_mutex_unlock(&rwmutex);
+         my_member_count++;
+      } 
+      else if (which_op < search_percent + insert_percent) 
+      {
+         pthread_mutex_lock(&rwmutex);
+         Insert(val);
+         pthread_mutex_unlock(&rwmutex);
+         my_insert_count++;
+      } 
+      else 
+      { 
+         pthread_mutex_lock(&rwmutex);
+         Delete(val);
+         pthread_mutex_unlock(&rwmutex);
          my_delete_count++;
       }
    } 
@@ -238,18 +285,18 @@ int main(int argc, char* argv[]) {
    pthread_mutex_init(&count_mutex, NULL);
    pthread_rwlock_init(&rwlock, NULL);
 
-   GET_TIME(start);
+   //GET_TIME(start);
    for (i = 0; i < thread_count; i++)
       pthread_create(&thread_handles[i], NULL, Thread_work, (void*) i);
 
    for (i = 0; i < thread_count; i++)
       pthread_join(thread_handles[i], NULL);
-   GET_TIME(finish);
-   printf("Elapsed time = %e seconds\n", finish - start);
+   //GET_TIME(finish);
+   /*printf("Elapsed time = %e seconds\n", finish - start);
    printf("Total ops = %d\n", total_ops);
    printf("member ops = %d\n", member_count);
    printf("insert ops = %d\n", insert_count);
-   printf("delete ops = %d\n", delete_count);
+   printf("delete ops = %d\n", delete_count);*/
 
    Free_list();
    pthread_rwlock_destroy(&rwlock);

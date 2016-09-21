@@ -68,6 +68,7 @@ int Delete(int value, struct list_node_s** head_pp) {
 
 struct list_node_s* lista = NULL;
 sem_t *sems;
+int complete=0;
 
 void* fun(void *rank)
 {
@@ -82,10 +83,11 @@ void* fun(void *rank)
 			sem_post(&sems[dest]);
 			sem_wait(&sems[0]);
 		}
+		complete=1;
 	}
 	else
 	{
-		while(1)
+		while(complete==0)
 		{
 			sem_wait(&sems[my_rank]); //bloqueo
 			Delete(lista->data,&lista);
@@ -93,6 +95,7 @@ void* fun(void *rank)
 			sem_post(&sems[0]); //desbloqueo
 		}
 	}
+	return;
 }
 
 int main(int argc, char const *argv[])

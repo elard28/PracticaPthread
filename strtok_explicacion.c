@@ -24,13 +24,16 @@ void* Tokenize(void* rank)
 	while (fg_rv != NULL) 
 	{
 		printf("Thread %ld > my_line = %s", my_rank, my_line);
+
 		count = 0;
 		my_string = strtok(my_line, " \t\n");
+		//my_string = strtok_r(my_line, " \t\n", &saveptr);
 		while ( my_string != NULL ) 
 		{
 			count++;
 			printf("Thread %ld > string %d = %s\n", my_rank, count,my_string);
 			my_string = strtok(NULL, " \t\n");
+			//my_string = strtok_r(NULL, " \t\n", &saveptr);
 		}
 		sem_wait(&sems[my_rank]);
 		fg_rv = fgets(my_line, MAX, stdin);
