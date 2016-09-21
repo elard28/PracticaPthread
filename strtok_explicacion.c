@@ -49,7 +49,7 @@ int main(int argc, char const *argv[])
 	sems = malloc (thread_count*sizeof(sem_t));
 
 	for (int i = 0; i < thread_count; ++i)
-		sem_init(&sems[i], 0, 10);
+		sem_init(&sems[i], 0, 0);
 
 	for (int i = 0; i < thread_count; ++i)
 		pthread_create(&thread_handles[i], NULL, Tokenize, (void*) i);
