@@ -4,6 +4,7 @@
 #include <time.h>
 
 #define TAM 8000
+#define TAM2 8000
 
 int thread_count;
 
@@ -11,7 +12,7 @@ struct timeval t0, t1;
 double media = 0.0;
 double *times;
 
-int A[TAM][TAM], x[TAM], y[TAM];
+int A[TAM][TAM2], x[TAM2], y[TAM];
 
 void llenar()
 {
@@ -19,7 +20,7 @@ void llenar()
 	for (int i = 0; i < TAM; ++i)
 	{
 		x[i]=rand()%100;
-		for (int j = 0; j < TAM; ++j)
+		for (int j = 0; j < TAM2; ++j)
 		{
 			A[i][j]=rand()%100;
 			//printf("%d\t", A[i][j]);
@@ -48,7 +49,7 @@ void* Pth_mat_vect(void* rank)
 	for (int i = my_first_row; i <= my_last_row; i++) 
 	{
 		y[i] = 0;
-		for (int j = 0; j < TAM; j++)
+		for (int j = 0; j < TAM2; j++)
 			y[i] += A[i][j]*x[j];
 	}
 

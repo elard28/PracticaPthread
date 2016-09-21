@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <pthread.h>
+#include <time.h>
 
 struct list_node_s {
    int    data;
