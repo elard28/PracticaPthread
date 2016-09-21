@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <semaphore.h>
+
+int thread_count;
 
 struct list_node_s {
    int    data;
@@ -75,17 +78,17 @@ void* fun(void *rank)
 		{
 			Insert(i,&lista);
 			int dest=(i%(thread_count-1))+1;
-			sem_post(&sem[dest]);
-			sem_wait(&sem[0]);
+			sem_post(&sems[dest]);
+			sem_wait(&sems[0]);
 		}
 	}
 	else
 	{
 		while(1)
 		{
-			sem_wait(&sem[my_rank]); //bloqueo
+			sem_wait(&sems[my_rank]); //bloqueo
 			Delete(lista->data,&lista);
-			sem_post(&sem[0]); //desbloqueo
+			sem_post(&sems[0]); //desbloqueo
 		}
 	}
 }

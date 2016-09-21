@@ -143,6 +143,7 @@ int main(int argc, char const *argv[])
 
 	struct list_node_s* lista=NULL;
 
+	Insert(10,&lista);
 	Insert(2,&lista);
 
 
