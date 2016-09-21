@@ -77,6 +77,7 @@ void* fun(void *rank)
 		for (int i = 0; i < 1000; ++i)
 		{
 			Insert(i,&lista);
+			printf("Thread principal inserta: %d\n", i);
 			int dest=(i%(thread_count-1))+1;
 			sem_post(&sems[dest]);
 			sem_wait(&sems[0]);
@@ -88,6 +89,7 @@ void* fun(void *rank)
 		{
 			sem_wait(&sems[my_rank]); //bloqueo
 			Delete(lista->data,&lista);
+			printf("Thread %d borra\n", my_rank);
 			sem_post(&sems[0]); //desbloqueo
 		}
 	}
